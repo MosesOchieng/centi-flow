@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useActivityStore } from '@/store/activityStore';
 import { useReputationStore } from '@/store/reputationStore';
 import PaystackPayment from '@/components/PaystackPayment';
-import { generateLendingTerms, calculateServiceHourRepayment, type BorrowerProfile } from '@/utils/lending';
+import { generateLendingTerms, type BorrowerProfile } from '@/utils/lending';
 import { format } from 'date-fns';
 import './Wallet.css';
 
@@ -14,7 +14,7 @@ export default function Wallet() {
   const { addActivity } = useActivityStore();
   const { getReputation } = useReputationStore();
   const [borrowAmount, setBorrowAmount] = useState('');
-  const [repaymentMethod, setRepaymentMethod] = useState<'cash' | 'service_hours' | 'products' | 'mixed'>('service_hours');
+  const [repaymentMethod, setRepaymentMethod] = useState<'cash' | 'service_hours' | 'mixed'>('service_hours');
   const [serviceHourRate, setServiceHourRate] = useState(10);
   const [showBorrowModal, setShowBorrowModal] = useState(false);
   const [showPaystackModal, setShowPaystackModal] = useState(false);
@@ -269,7 +269,6 @@ export default function Wallet() {
               >
                 <option value="service_hours">Service Hours</option>
                 <option value="cash">Cash</option>
-                <option value="products">Products</option>
                 <option value="mixed">Mixed</option>
               </select>
             </div>

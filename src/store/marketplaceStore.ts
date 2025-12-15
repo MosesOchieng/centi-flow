@@ -13,7 +13,7 @@ interface MarketplaceState {
 
   // Actions
   loadServices: () => void;
-  createService: (service: Omit<Service, 'id' | 'createdAt' | 'status'>) => Service;
+  createService: (service: Omit<Service, 'id' | 'createdAt' | 'status' | 'centiCost'>) => Service;
   requestService: (serviceId: string, requesterId: string) => ServiceRequest | null;
   acceptServiceRequest: (requestId: string, providerId: string) => void;
   completeService: (requestId: string, hoursDelivered?: number) => void;
@@ -86,7 +86,7 @@ export const useMarketplaceStore = create<MarketplaceState>((set, get) => ({
     return request;
   },
 
-  acceptServiceRequest: (requestId, providerId) => {
+  acceptServiceRequest: (requestId, _providerId) => {
     set(state => ({
       serviceRequests: state.serviceRequests.map(req =>
         req.id === requestId
@@ -96,7 +96,7 @@ export const useMarketplaceStore = create<MarketplaceState>((set, get) => ({
     }));
   },
 
-  completeService: (requestId, hoursDelivered) => {
+  completeService: (requestId, _hoursDelivered) => {
     const state = get();
     const request = state.serviceRequests.find(r => r.id === requestId);
     

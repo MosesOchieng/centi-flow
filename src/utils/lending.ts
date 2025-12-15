@@ -1,6 +1,6 @@
 // Enhanced Lending System with Dynamic Interest Rates
 
-import type { Business, Reputation } from '@/types';
+import type { Reputation } from '@/types';
 
 export interface LendingTerms {
   principal: number;

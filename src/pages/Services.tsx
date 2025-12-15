@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { useServiceHourStore } from '@/store/serviceHourStore';
 import { useAuthStore } from '@/store/authStore';
 import { useWalletStore } from '@/store/walletStore';
 import { SUBSCRIPTION_PLANS, type SubscriptionPlan } from '@/types/subscription';
 import type { ServicePool } from '@/types/pools';
-import { format } from 'date-fns';
 import ServiceHours from './ServiceHours';
 import './Services.css';
 

@@ -5,7 +5,6 @@ import { useAuthStore } from '@/store/authStore';
 import { useActivityStore } from '@/store/activityStore';
 import { useReputationStore } from '@/store/reputationStore';
 import { useServiceHourStore } from '@/store/serviceHourStore';
-import { getServiceCategories } from '@/utils/adminRules';
 import { adjustCentiByReputation } from '@/utils/centiInflation';
 import LoadingPopup from '@/components/LoadingPopup';
 import type { MicroTask } from '@/types/tasks';
@@ -171,7 +170,8 @@ export default function Marketplace() {
         businessId: currentBusiness.id,
         ...newTask,
         status: 'open',
-        currentAssignments: 0
+        currentAssignments: 0,
+        createdAt: new Date()
       };
 
       setTasks([...tasks, task]);

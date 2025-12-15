@@ -30,6 +30,7 @@ export interface CentiTransaction {
   timestamp: Date;
   relatedServiceId?: string;
   relatedBusinessId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ServiceCategory {

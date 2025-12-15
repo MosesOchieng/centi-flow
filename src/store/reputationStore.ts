@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Reputation, ServiceRequest } from '@/types';
+import type { Reputation } from '@/types';
 
 interface ReputationState {
   reputations: Map<string, Reputation>;
@@ -36,7 +36,7 @@ export const useReputationStore = create<ReputationState>((set, get) => ({
     });
   },
 
-  updateRating: (businessId, rating, review) => {
+  updateRating: (businessId, rating, _review) => {
     const state = get();
     const current = state.reputations.get(businessId) || state.getReputation(businessId);
 

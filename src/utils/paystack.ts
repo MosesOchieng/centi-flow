@@ -32,7 +32,7 @@ declare global {
 }
 
 // Initialize Paystack
-export function initializePaystack(publicKey: string): void {
+export function initializePaystack(_publicKey: string): void {
   if (typeof window !== 'undefined' && !window.PaystackPop) {
     const script = document.createElement('script');
     script.src = 'https://js.paystack.co/v1/inline.js';

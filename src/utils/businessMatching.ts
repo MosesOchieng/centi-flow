@@ -35,7 +35,7 @@ export interface Match {
 
 // Analyze business needs from service requests
 export function analyzeBusinessNeeds(
-  businesses: Business[],
+  _businesses: Business[],
   serviceRequests: ServiceRequest[],
   services: Service[]
 ): BusinessNeed[] {
@@ -195,7 +195,7 @@ function generateMatchReason(
 
 // Continuous matching loop (runs periodically)
 export class BusinessMatchingEngine {
-  private intervalId: NodeJS.Timeout | null = null;
+  private intervalId: ReturnType<typeof setInterval> | null = null;
   private onMatchFound: (matches: Match[]) => void;
 
   constructor(onMatchFound: (matches: Match[]) => void) {

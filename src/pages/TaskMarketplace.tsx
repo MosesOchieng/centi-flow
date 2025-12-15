@@ -34,7 +34,8 @@ export default function TaskMarketplace() {
         businessId: currentBusiness.id,
         ...newTask,
         status: 'open',
-        currentAssignments: 0
+        currentAssignments: 0,
+        createdAt: new Date()
       };
 
       setTasks([...tasks, task]);

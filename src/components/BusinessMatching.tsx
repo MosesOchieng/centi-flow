@@ -23,13 +23,24 @@ export default function BusinessMatching() {
       setMatches(relevantMatches);
     });
 
+    // Map full reputation objects to the simple shape expected by the matching engine
+    const simpleReputations = new Map(
+      Array.from(reputations.entries()).map(([businessId, rep]) => [
+        businessId,
+        {
+          rating: rep.averageRating,
+          totalJobs: rep.totalJobsCompleted
+        }
+      ])
+    );
+
     // Start matching engine
     setIsRunning(true);
     matchingEngine.start(
       [currentBusiness],
       serviceRequests,
       services,
-      reputations,
+      simpleReputations,
       30000 // Run every 30 seconds
     );
 

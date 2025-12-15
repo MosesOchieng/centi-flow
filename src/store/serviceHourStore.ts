@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ServiceHour, ServiceRequest } from '@/types';
+import type { ServiceHour } from '@/types';
 
 interface ServiceHourState {
   hours: ServiceHour[];
