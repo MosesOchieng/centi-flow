@@ -82,6 +82,12 @@ export default function Marketplace() {
   const handleRequestService = async (serviceId: string) => {
     if (!currentBusiness) return;
 
+    // Check KYC status
+    if (!currentBusiness.verified && currentBusiness.kycStatus !== 'approved') {
+      alert('Please complete and get your KYC approved before requesting services.');
+      return;
+    }
+
     const service = services.find(s => s.id === serviceId);
     if (!service) return;
 
@@ -114,7 +120,15 @@ export default function Marketplace() {
   };
 
   const handleCreateService = async () => {
-    if (!currentBusiness || !newService.title || !newService.categoryId) {
+    if (!currentBusiness) return;
+
+    // Check KYC status
+    if (!currentBusiness.verified && currentBusiness.kycStatus !== 'approved') {
+      alert('Please complete and get your KYC approved before offering services.');
+      return;
+    }
+
+    if (!newService.title || !newService.categoryId) {
       alert('Please fill in all required fields');
       return;
     }

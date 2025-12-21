@@ -9,6 +9,8 @@ import Dashboard from './pages/Dashboard';
 import Wallet from './pages/Wallet';
 import Marketplace from './pages/Marketplace';
 import Services from './pages/Services';
+import ActiveJobs from './pages/ActiveJobs';
+import Admin from './pages/Admin';
 import Welcome from './pages/Welcome';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -68,7 +70,9 @@ function App() {
             <Route path="wallet" element={<Wallet />} />
             <Route path="marketplace" element={<Marketplace />} />
             <Route path="services" element={<Services />} />
+            <Route path="active-jobs" element={<ActiveJobs />} />
           </Route>
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       )}
     </BrowserRouter>

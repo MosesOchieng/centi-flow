@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import LoadingPopup from '@/components/LoadingPopup';
 import BusinessMatching from '@/components/BusinessMatching';
+import KycModal from '@/components/KycModal';
 import './Dashboard.css';
 
 type DemoListing = {
@@ -75,26 +76,35 @@ export default function Dashboard() {
   const [selectedListing, setSelectedListing] = useState<DemoListing | null>(null);
   const [kycStatus, setKycStatus] = useState<'incomplete' | 'pending' | 'approved'>('incomplete');
   const [showKycBanner, setShowKycBanner] = useState(false);
+  const [showKycModal, setShowKycModal] = useState(false);
 
   useEffect(() => {
     if (!currentBusiness) return;
 
-    if (currentBusiness.verified) {
+    const kyc = currentBusiness.kycStatus || (currentBusiness.verified ? 'approved' : 'incomplete');
+    
+    if (kyc === 'approved' && currentBusiness.verified) {
       setKycStatus('approved');
+      setShowKycBanner(false);
+    } else if (kyc === 'pending') {
+      setKycStatus('pending');
       setShowKycBanner(true);
-      const timer = setTimeout(() => setShowKycBanner(false), 2500);
-      return () => clearTimeout(timer);
     } else {
       setKycStatus('incomplete');
       setShowKycBanner(true);
     }
   }, [currentBusiness]);
 
-  const needsKyc = !currentBusiness?.verified;
+  const needsKyc = !currentBusiness?.verified && currentBusiness?.kycStatus !== 'approved';
+  const kycPending = currentBusiness?.kycStatus === 'pending';
 
-  const handleCompleteKyc = async () => {
+  const handleCompleteKyc = () => {
+    setShowKycModal(true);
+  };
+
+  const handleKycComplete = () => {
+    setShowKycModal(false);
     setKycStatus('pending');
-    await completeKyc();
   };
 
   // Rotate the demo data feed every 60 seconds
@@ -118,11 +128,16 @@ export default function Dashboard() {
   })();
 
   const handleParticipate = async () => {
+    if (needsKyc) {
+      setShowKycModal(true);
+      return;
+    }
+    
     setIsParticipating(true);
     // Simulate processing time
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsParticipating(false);
-    navigate('/marketplace');
+    navigate('/active-jobs');
   };
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -172,13 +187,24 @@ export default function Dashboard() {
               business so other businesses know who they&apos;re working with.
             </p>
             <p className={`kyc-status kyc-${kycStatus}`}>
-              {kycStatus === 'incomplete' && 'KYC status: Incomplete'}
-              {kycStatus === 'pending' && 'KYC status: Submitted · Under review'}
+              {kycStatus === 'incomplete' && 'KYC status: Incomplete - Click to complete'}
+              {kycStatus === 'pending' && 'KYC status: Submitted · Under review by admin'}
               {kycStatus === 'approved' && 'KYC status: Approved'}
             </p>
+            {kycStatus === 'incomplete' && (
+              <button className="btn-complete-kyc" onClick={(e) => { e.stopPropagation(); handleCompleteKyc(); }}>
+                Complete KYC Now
+              </button>
+            )}
           </div>
         </div>
       )}
+
+      <KycModal
+        isOpen={showKycModal}
+        onClose={() => setShowKycModal(false)}
+        onComplete={handleKycComplete}
+      />
       <div className="dashboard-grid">
         {/* AI Business Matching */}
         <BusinessMatching />

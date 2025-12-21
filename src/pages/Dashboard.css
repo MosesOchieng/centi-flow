@@ -74,6 +74,23 @@
   color: #15803d;
 }
 
+.btn-complete-kyc {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  background: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-complete-kyc:hover {
+  background: #16a34a;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr;

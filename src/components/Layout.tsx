@@ -1,17 +1,26 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import './Layout.css';
 
 export default function Layout() {
   const { currentBusiness, logout } = useAuthStore();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    // Check if Ctrl/Cmd key is pressed for admin access
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      navigate('/admin');
+    }
+  };
 
   return (
     <div className="layout">
       <nav className="navbar">
-        <div className="navbar-brand">
+        <div className="navbar-brand" onClick={handleLogoClick} style={{ cursor: 'pointer' }} title="Click logo (Ctrl/Cmd) to access admin">
           <img 
             src="/1735912600698.jpeg" 
             alt="Centi Flow Logo" 

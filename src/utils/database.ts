@@ -8,6 +8,7 @@ interface BusinessData {
   email: string;
   password: string; // In production, this should be hashed
   verified: boolean;
+  kycStatus?: 'incomplete' | 'pending' | 'approved' | 'rejected';
   createdAt: Date;
   reputation: number;
   rating: number;

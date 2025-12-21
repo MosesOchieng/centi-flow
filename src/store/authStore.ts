@@ -152,9 +152,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const existing = await getBusinessById(state.currentBusiness.id);
       if (!existing) return;
 
+      // Set KYC status to pending (admin will approve)
       const updated = {
         ...existing,
-        verified: true
+        kycStatus: 'pending' as const,
+        verified: false // Not verified until admin approves
       };
 
       await saveBusiness(updated);
@@ -162,7 +164,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({
         currentBusiness: {
           ...state.currentBusiness,
-          verified: true
+          kycStatus: 'pending',
+          verified: false
         }
       });
     } catch (error) {
