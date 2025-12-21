@@ -124,7 +124,16 @@ export const useMarketplaceStore = create<MarketplaceState>((set, get) => ({
 
     // Record earned service hours for the provider
     const serviceHourStore = useServiceHourStore.getState();
-    serviceHourStore.recordEarnedHours(service.providerId, request.id, standardHours);
+    const earnedHour = serviceHourStore.recordEarnedHours(service.providerId, request.id, standardHours);
+
+    // Auto-verify service hours after 24 hours if not manually verified
+    // This allows requester to verify immediately, but auto-verifies if they don't
+    setTimeout(() => {
+      const currentHour = serviceHourStore.getState().hours.find(h => h.id === earnedHour.id);
+      if (currentHour && currentHour.status === 'pending') {
+        serviceHourStore.verifyHours(earnedHour.id);
+      }
+    }, 24 * 60 * 60 * 1000); // 24 hours
 
     // Credit Centi to the provider's wallet based on the service package value
     const walletStore = useWalletStore.getState();

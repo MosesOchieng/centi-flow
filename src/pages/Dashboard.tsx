@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import LoadingPopup from '@/components/LoadingPopup';
+import BusinessMatching from '@/components/BusinessMatching';
 import './Dashboard.css';
 
 type DemoListing = {
@@ -179,6 +180,9 @@ export default function Dashboard() {
         </div>
       )}
       <div className="dashboard-grid">
+        {/* AI Business Matching */}
+        <BusinessMatching />
+        
         {/* Marketplace Listings Only */}
         <div className="dashboard-card marketplace-card">
           <div className="card-header">

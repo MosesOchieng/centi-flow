@@ -111,6 +111,82 @@
   box-shadow: 0 4px 6px rgba(34, 197, 94, 0.3);
 }
 
+.match-role {
+  margin-top: 0.5rem;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #dbeafe;
+  color: #2563eb;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.role-badge.provider {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.match-score-large {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.score-value-large {
+  display: block;
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #22c55e 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.match-reason-large {
+  font-size: 1.125rem;
+  color: #475569;
+  text-align: center;
+  font-weight: 500;
+}
+
+.match-detail-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.match-detail-section:last-of-type {
+  border-bottom: none;
+}
+
+.match-detail-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+}
+
+.match-details-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.match-details-list li {
+  padding: 0.5rem 0;
+  color: #475569;
+  font-size: 0.9375rem;
+}
+
+.match-details-list li strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
 @media (max-width: 768px) {
   .match-card {
     flex-direction: column;

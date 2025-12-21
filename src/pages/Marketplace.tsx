@@ -7,6 +7,7 @@ import { useReputationStore } from '@/store/reputationStore';
 import { useServiceHourStore } from '@/store/serviceHourStore';
 import { adjustCentiByReputation } from '@/utils/centiInflation';
 import LoadingPopup from '@/components/LoadingPopup';
+import BusinessMatching from '@/components/BusinessMatching';
 import type { MicroTask } from '@/types/tasks';
 import type { BarterListing } from '@/types/barter';
 import type { ServiceRequest } from '@/types';
@@ -67,6 +68,8 @@ export default function Marketplace() {
   const [processingMessage, setProcessingMessage] = useState('Processing...');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  const [filterByServiceHours, setFilterByServiceHours] = useState<boolean>(false);
+  const [minServiceHours, setMinServiceHours] = useState<number>(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -274,7 +277,21 @@ export default function Marketplace() {
     }
   };
 
-  const filteredServices = getFilteredServices();
+  const filteredServices = (() => {
+    let filtered = getFilteredServices();
+    
+    // Filter by service hours if enabled
+    if (filterByServiceHours && minServiceHours > 0) {
+      filtered = filtered.filter(service => {
+        const providerHours = hours
+          .filter(h => h.businessId === service.providerId && h.type === 'earned' && h.status === 'verified')
+          .reduce((sum, h) => sum + h.hours, 0);
+        return providerHours >= minServiceHours;
+      });
+    }
+    
+    return filtered;
+  })();
 
   const getRequestsForRole = (role: 'provider' | 'requester'): ServiceRequest[] => {
     if (!currentBusiness) return [];
@@ -330,6 +347,9 @@ export default function Marketplace() {
       {/* Services Tab - offer + discover + track service pipeline */}
       {activeTab === 'services' && (
         <>
+          {/* AI Business Matching */}
+          <BusinessMatching />
+          
           <div className="tab-header">
             <h2>Offer & Request Services</h2>
             <button className="btn-primary" onClick={() => setShowCreateModal(true)}>
@@ -369,6 +389,30 @@ export default function Marketplace() {
                 </button>
               ))}
             </div>
+            <div className="service-hours-filter">
+              <label className="filter-checkbox">
+                <input
+                  type="checkbox"
+                  checked={filterByServiceHours}
+                  onChange={e => setFilterByServiceHours(e.target.checked)}
+                />
+                <span>Filter by service hours earned</span>
+              </label>
+              {filterByServiceHours && (
+                <div className="hours-input-group">
+                  <label>Minimum hours:</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={minServiceHours}
+                    onChange={e => setMinServiceHours(parseInt(e.target.value) || 0)}
+                    placeholder="0"
+                    className="hours-input"
+                  />
+                  <span className="hours-label">hours</span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="services-grid">
@@ -377,6 +421,11 @@ export default function Marketplace() {
                 const category = categories.find(c => c.id === service.categoryId);
                 const isOwnService = currentBusiness?.id === service.providerId;
                 const isDisabled = isOwnService;
+                
+                // Calculate earned service hours for this provider
+                const providerEarnedHours = hours
+                  .filter(h => h.businessId === service.providerId && h.type === 'earned' && h.status === 'verified')
+                  .reduce((sum, h) => sum + h.hours, 0);
 
                 return (
                   <div
@@ -393,6 +442,19 @@ export default function Marketplace() {
                     <div className="service-category">
                       {category?.name} · {service.estimatedHours} hrs
                     </div>
+                    {providerEarnedHours > 0 && (
+                      <div className="service-hours-badge" style={{ 
+                        marginTop: '0.5rem', 
+                        padding: '0.25rem 0.5rem', 
+                        backgroundColor: '#e0f2fe', 
+                        color: '#0369a1',
+                        borderRadius: '4px',
+                        fontSize: '0.875rem',
+                        display: 'inline-block'
+                      }}>
+                        ✓ {providerEarnedHours} verified hours earned
+                      </div>
+                    )}
                     <p className="service-description">
                       {service.description || 'No description provided yet.'}
                     </p>

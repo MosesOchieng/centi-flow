@@ -60,32 +60,88 @@ export function analyzeBusinessNeeds(
   return needs;
 }
 
-// Analyze business capabilities from services offered
+// Analyze business capabilities from services offered AND earned service hours
 export function analyzeBusinessCapabilities(
   businesses: Business[],
   services: Service[],
-  reputations: Map<string, { rating: number; totalJobs: number }>
+  reputations: Map<string, { rating: number; totalJobs: number }>,
+  serviceHoursEarned?: Map<string, number> // Map of businessId -> total verified earned hours
 ): BusinessCapability[] {
   const capabilities: BusinessCapability[] = [];
+  const capabilityMap = new Map<string, BusinessCapability>();
 
+  // First, add capabilities from active service listings
   services.forEach(service => {
     if (service.status === 'available') {
       const business = businesses.find(b => b.id === service.providerId);
       const reputation = reputations.get(service.providerId);
+      const earnedHours = serviceHoursEarned?.get(service.providerId) || 0;
 
-      capabilities.push({
-        businessId: service.providerId,
-        categoryId: service.categoryId,
-        availableHours: service.estimatedHours,
-        rate: service.centiCost / service.estimatedHours,
-        experience: business?.totalHoursDelivered || 0,
-        rating: reputation?.rating || 0,
-        specialties: [service.title],
-      });
+      const key = `${service.providerId}-${service.categoryId}`;
+      if (!capabilityMap.has(key)) {
+        capabilityMap.set(key, {
+          businessId: service.providerId,
+          categoryId: service.categoryId,
+          availableHours: service.estimatedHours,
+          rate: service.centiCost / service.estimatedHours,
+          experience: (business?.totalHoursDelivered || 0) + earnedHours,
+          rating: reputation?.rating || 0,
+          specialties: [service.title],
+        });
+      } else {
+        // Merge if same business/category
+        const existing = capabilityMap.get(key)!;
+        existing.availableHours += service.estimatedHours;
+        existing.specialties?.push(service.title);
+      }
     }
   });
 
-  return capabilities;
+  // Also add businesses with earned service hours who might be looking for work
+  // even if they don't have active listings
+  businesses.forEach(business => {
+    const earnedHours = serviceHoursEarned?.get(business.id) || 0;
+    const reputation = reputations.get(business.id);
+    
+    // If business has significant earned hours but no active service listing,
+    // they might be available for work
+    if (earnedHours >= 5 && business.totalHoursDelivered >= 10) {
+      // Check if they have any service in any category
+      const hasActiveService = services.some(
+        s => s.providerId === business.id && s.status === 'available'
+      );
+      
+      if (!hasActiveService) {
+        // Create a capability entry for businesses with proven track record
+        // They can be matched to needs in categories they've worked in before
+        const businessServices = services.filter(s => s.providerId === business.id);
+        const categoriesWorked = new Set(businessServices.map(s => s.categoryId));
+        
+        categoriesWorked.forEach(categoryId => {
+          const key = `${business.id}-${categoryId}`;
+          if (!capabilityMap.has(key)) {
+            // Use average rate from their past services or category default
+            const pastService = businessServices.find(s => s.categoryId === categoryId);
+            const rate = pastService 
+              ? pastService.centiCost / pastService.estimatedHours
+              : 5; // Default rate
+            
+            capabilityMap.set(key, {
+              businessId: business.id,
+              categoryId,
+              availableHours: Math.min(earnedHours, 20), // Estimate available capacity
+              rate,
+              experience: business.totalHoursDelivered + earnedHours,
+              rating: reputation?.rating || business.rating || 0,
+              specialties: ['Experienced provider'],
+            });
+          }
+        });
+      }
+    }
+  });
+
+  return Array.from(capabilityMap.values());
 }
 
 // Match businesses based on needs and capabilities
@@ -207,16 +263,17 @@ export class BusinessMatchingEngine {
     serviceRequests: ServiceRequest[],
     services: Service[],
     reputations: Map<string, { rating: number; totalJobs: number }>,
-    intervalMs: number = 30000 // 30 seconds default
+    intervalMs: number = 30000, // 30 seconds default
+    serviceHoursEarned?: Map<string, number>
   ): void {
     this.stop(); // Clear any existing interval
 
     // Run immediately
-    this.runMatching(businesses, serviceRequests, services, reputations);
+    this.runMatching(businesses, serviceRequests, services, reputations, serviceHoursEarned);
 
     // Then run periodically
     this.intervalId = setInterval(() => {
-      this.runMatching(businesses, serviceRequests, services, reputations);
+      this.runMatching(businesses, serviceRequests, services, reputations, serviceHoursEarned);
     }, intervalMs);
   }
 
@@ -231,10 +288,11 @@ export class BusinessMatchingEngine {
     businesses: Business[],
     serviceRequests: ServiceRequest[],
     services: Service[],
-    reputations: Map<string, { rating: number; totalJobs: number }>
+    reputations: Map<string, { rating: number; totalJobs: number }>,
+    serviceHoursEarned?: Map<string, number>
   ): void {
     const needs = analyzeBusinessNeeds(businesses, serviceRequests, services);
-    const capabilities = analyzeBusinessCapabilities(businesses, services, reputations);
+    const capabilities = analyzeBusinessCapabilities(businesses, services, reputations, serviceHoursEarned);
     const matches = matchBusinesses(needs, capabilities);
 
     if (matches.length > 0) {
